@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
+import api from '../../lib/axios';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -17,7 +17,7 @@ export default function ForgotPassword() {
     setMessage('');
 
     try {
-      const res = await axios.post('http://localhost:5001/api/v1/auth/forgotpassword', {
+      const res = await api.post('/auth/forgotpassword', {
         email
       });
       setMessage('Success! Check your email for a password reset link.');

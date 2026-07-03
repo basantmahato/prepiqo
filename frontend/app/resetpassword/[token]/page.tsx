@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
+import api from '../../../lib/axios';
 import { useParams, useRouter } from 'next/navigation';
 
 export default function ResetPassword() {
@@ -29,8 +29,8 @@ export default function ResetPassword() {
     }
 
     try {
-      await axios.put(`http://localhost:5001/api/v1/auth/resetpassword/${resetToken}`, {
-        password
+      await api.put(`/auth/resetpassword/${resetToken}`, {
+        password,
       });
       setMessage('Password reset successfully! Redirecting...');
       setTimeout(() => {
