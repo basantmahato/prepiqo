@@ -33,6 +33,16 @@ app.use('/api/v1/payment', paymentRoutes);
 
 
 const PORT = process.env.PORT || 5001;
+
+// Root response
+app.get('/', (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        message: 'API is running',
+        port: PORT
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
