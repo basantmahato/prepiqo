@@ -24,8 +24,13 @@ const paymentSchema = new mongoose.Schema({
     enum: ['success', 'failed', 'pending'],
     default: 'pending'
   },
-  transactionId: {
+  provider: {
     type: String,
+    enum: ['razorpay', 'apple', 'google'],
+    default: 'razorpay'
+  },
+  transactionId: {
+    type: String, // Provider's order/receipt ID
     required: true
   },
   date: {

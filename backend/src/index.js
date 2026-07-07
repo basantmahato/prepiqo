@@ -5,6 +5,8 @@ import cors from 'cors';
 import dataRoutes from './routes/data.js';
 import authRoutes from './routes/auth.js';
 import paymentRoutes from './routes/payment.js';
+import adminRoutes from './routes/admin.route.js';
+import iapRoutes from './routes/iap.routes.js';
 import rateLimit from 'express-rate-limit';
 
 const app = express()
@@ -29,6 +31,8 @@ app.use('/api', limiter);
 app.use('/api/v1/data', dataRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/payment', paymentRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/iap', iapRoutes);
 
 
 

@@ -8,6 +8,7 @@ import { View, ActivityIndicator } from 'react-native';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuthStore } from '../store/authStore';
+import { usePlayStoreUpdate } from '../hooks/usePlayStoreUpdate';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -18,6 +19,9 @@ export default function RootLayout() {
   const { isHydrating, isAuthenticated, hydrate } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
+
+  // Initialize auto-updates check for Google Play
+  usePlayStoreUpdate();
 
   useEffect(() => {
     hydrate();

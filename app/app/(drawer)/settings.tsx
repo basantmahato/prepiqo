@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, Switch, Modal, Act
 import { useAuthStore } from '../../store/authStore';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../lib/axios';
+import { useStoreReview } from '../../hooks/useStoreReview';
 
 export default function SettingsScreen() {
   const { user, updateUser } = useAuthStore();
@@ -12,6 +13,9 @@ export default function SettingsScreen() {
   const [email, setEmail] = useState('');
   const [profileIsLoading, setProfileIsLoading] = useState(false);
   const [profileMessage, setProfileMessage] = useState({ text: '', type: '' });
+
+  // Store Review hook
+  const { manualRequestReview } = useStoreReview();
 
   // OTP state
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -260,6 +264,29 @@ export default function SettingsScreen() {
         </View>
 
       </ScrollView>
+
+      {/* App Feedback */}
+      <View className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6 mx-4">
+        <View className="p-5 bg-gray-50 border-b border-gray-200">
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="star-outline" size={20} color="#6B7280" />
+            <Text className="text-lg font-semibold text-[#0A2540]">Feedback</Text>
+          </View>
+          <Text className="text-sm text-[#6B7280] mt-1">Help us improve by leaving a review.</Text>
+        </View>
+        <View className="p-5">
+          <TouchableOpacity 
+            onPress={() => manualRequestReview()}
+            className="flex-row items-center justify-between py-2"
+          >
+            <View>
+              <Text className="font-medium text-[#0A2540]">Rate the App</Text>
+              <Text className="text-sm text-[#6B7280]">Leave a review on the app store</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* OTP Verification Modal */}
       <Modal

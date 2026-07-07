@@ -62,6 +62,15 @@ export default function DrawerLayout() {
             headerRight: () => null,
           }}
         />
+        <Drawer.Screen
+          name="subscription"
+          options={{
+            drawerLabel: 'Upgrade',
+            drawerIcon: ({ color, size }) => <Ionicons name="star-outline" size={20} color={color} />,
+            headerRight: () => null,
+            title: 'Upgrade to Premium'
+          }}
+        />
       </Drawer>
     </GestureHandlerRootView>
   );

@@ -24,8 +24,13 @@ const subscriptionSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  provider: {
+    type: String,
+    enum: ['razorpay', 'apple', 'google'],
+    default: 'razorpay'
+  },
   providerSubscriptionId: {
-    type: String, // e.g., Stripe subscription ID
+    type: String, // e.g., Razorpay/Apple/Google subscription ID
     default: null
   }
 }, { timestamps: true });

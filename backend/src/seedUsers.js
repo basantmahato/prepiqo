@@ -22,7 +22,8 @@ const seedUsers = async () => {
       name: 'Admin User',
       email: 'admin@mcqbot.com',
       password: hashedPassword,
-      role: 'admin'
+      role: 'admin',
+      isVerified: true
     });
     console.log(`Created admin: ${admin.email}`);
 
@@ -31,7 +32,8 @@ const seedUsers = async () => {
       name: 'Standard User',
       email: 'user@mcqbot.com',
       password: hashedPassword,
-      role: 'user'
+      role: 'user',
+      isVerified: true
     });
     console.log(`Created standard user: ${user.email}`);
 
