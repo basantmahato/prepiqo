@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../lib/axios';
 import ReactMarkdown from 'react-markdown';
@@ -33,6 +33,8 @@ interface Message {
 
 export default function Dashboard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const chatId = searchParams?.get('chatId');
   const { isAuthenticated } = useAuthStore();
   
   const [topic, setTopic] = useState('');
@@ -59,6 +61,71 @@ export default function Dashboard() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    const fetchChat = async () => {
+      if (!chatId) {
+        setMessages([
+          {
+            id: 'welcome',
+            role: 'assistant',
+            content: 'Hello! I am your MCQBot. What would you like to generate today? You can choose MCQs, Study Notes, or Q&A using the + button next to the input.',
+          }
+        ]);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const response = await api.get(`/data/chatshistory/${chatId}`);
+        const chatData = response.data.data;
+        
+        if (chatData && chatData.messages) {
+          const parsedMessages = chatData.messages.map((m: any, i: number) => {
+            const msg: Message = {
+              id: m._id || i.toString(),
+              role: m.role,
+              content: m.content
+            };
+            
+            if (m.role === 'assistant') {
+              try {
+                // Try parsing JSON if it was MCQs or QA
+                const parsed = JSON.parse(m.content);
+                if (Array.isArray(parsed)) {
+                  if (parsed.length > 0 && 'options' in parsed[0]) {
+                    msg.type = 'mcq';
+                    msg.mcqs = parsed;
+                    msg.content = 'Here are your generated MCQs:';
+                  } else if (parsed.length > 0 && 'answer' in parsed[0]) {
+                    msg.type = 'qa';
+                    msg.qa = parsed;
+                    msg.content = 'Here are your Q&A pairs:';
+                  }
+                }
+              } catch (e) {
+                // If parsing fails, it's either chat or notes, which are just markdown strings
+                if (chatData.title?.startsWith('Notes')) {
+                  msg.type = 'notes';
+                } else {
+                  msg.type = 'chat';
+                }
+              }
+            }
+            return msg;
+          });
+          
+          setMessages(parsedMessages);
+        }
+      } catch (error) {
+        console.error('Failed to load chat:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchChat();
+  }, [chatId]);
 
   // Removed redirect, unauthenticated users are allowed to use Try MCQBot
 

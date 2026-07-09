@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { generateMCQs, getChatsHistory, generateNotes, generateQA, toggleShareChat, getSharedChat, generateChat } from '../controllers/mcq.controller.js';
+import { generateMCQs, getChatsHistory, getChat, generateNotes, generateQA, toggleShareChat, getSharedChat, generateChat } from '../controllers/mcq.controller.js';
 import { protect, optionalProtect } from '../middleware/auth.middleware.js';
 import { checkRequestLimit } from '../middleware/requestLimit.middleware.js';
 
@@ -10,6 +10,7 @@ router.post('/generate-notes', optionalProtect, checkRequestLimit, generateNotes
 router.post('/generate-qa', optionalProtect, checkRequestLimit, generateQA);
 router.post('/generate-chat', optionalProtect, checkRequestLimit, generateChat);
 router.get('/chatshistory', protect, getChatsHistory);
+router.get('/chatshistory/:id', protect, getChat);
 
 router.post('/chatshistory/:id/share', protect, toggleShareChat);
 router.get('/shared/:id', getSharedChat);

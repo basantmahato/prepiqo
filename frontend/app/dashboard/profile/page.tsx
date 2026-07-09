@@ -12,6 +12,11 @@ export default function ProfilePage() {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Fetch available plans
@@ -26,7 +31,7 @@ export default function ProfilePage() {
     fetchPlans();
   }, []);
 
-  if (!user) {
+  if (!mounted || !user) {
     return <div className="p-8">Loading...</div>;
   }
 

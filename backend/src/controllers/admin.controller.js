@@ -81,7 +81,7 @@ export const getDashboardStats = async (req, res) => {
 // @access  Private/Admin
 export const updateUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).populate('currentSubscription');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -89,6 +89,32 @@ export const updateUser = async (req, res) => {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
     user.role = req.body.role || user.role;
+    
+    // Handle manual plan override
+    if (req.body.planId !== undefined) {
+      if (req.body.planId === 'free') {
+        user.currentSubscription = null;
+      } else {
+        const plan = await Plan.findById(req.body.planId);
+        if (plan) {
+          // Create a manual subscription that doesn't rely on razorpay
+          const endDate = new Date();
+          endDate.setFullYear(endDate.getFullYear() + 10); // 10 years access for manual admin assignment
+          
+          const subscription = await Subscription.create({
+            user: user._id,
+            plan: plan._id,
+            status: 'active',
+            startDate: new Date(),
+            endDate: endDate,
+            provider: 'razorpay',
+            providerSubscriptionId: 'manual_admin_override_' + Date.now()
+          });
+          
+          user.currentSubscription = subscription._id;
+        }
+      }
+    }
     
     const updatedUser = await user.save();
     res.status(200).json({ success: true, data: updatedUser });

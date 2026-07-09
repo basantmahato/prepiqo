@@ -25,7 +25,10 @@ export const checkRequestLimit = async (req, res, next) => {
             return next();
         }
 
-        const user = await User.findById(req.user._id).populate('currentSubscription');
+        const user = await User.findById(req.user._id).populate({
+            path: 'currentSubscription',
+            populate: { path: 'plan' }
+        });
         
         // Determine if user is a free user
         const isFreeUser = !user.currentSubscription || user.currentSubscription.status !== 'active';
@@ -59,12 +62,13 @@ export const checkRequestLimit = async (req, res, next) => {
                 });
             }
         } else {
-            // Pro Plan limit
-            if (chatCount >= 300) {
+            // Pro Plan limit dynamically fetched from the plan
+            const proLimit = user.currentSubscription.plan?.maxRequestsPerWindow || 300;
+            if (chatCount >= proLimit) {
                 return res.status(403).json({ 
                     success: false, 
                     error: "Pro Limit Reached", 
-                    message: "You have reached your limit of 300 requests for this billing week." 
+                    message: `You have reached your limit of ${proLimit} requests for this billing week.` 
                 });
             }
         }

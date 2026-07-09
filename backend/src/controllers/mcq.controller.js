@@ -78,7 +78,8 @@ export const generateMCQs = async (req, res) => {
 export const getChatsHistory = async (req, res) => {
     try {
         // Fetch all recent chats for the authenticated user, sorted newest first
-        const chats = await RecentChat.find({ user: req.user._id }).sort({ createdAt: -1 });
+        // We probably shouldn't fetch all messages here for performance, but keeping it as is for now
+        const chats = await RecentChat.find({ user: req.user._id }).sort({ createdAt: -1 }).select('-messages');
         
         res.json({ 
             success: true, 
@@ -88,6 +89,20 @@ export const getChatsHistory = async (req, res) => {
     } catch (error) {
         console.error("Error fetching chat history:", error);
         res.status(500).json({ success: false, error: "Failed to fetch chat history", details: error.message });
+    }
+};
+
+export const getChat = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const chat = await RecentChat.findOne({ _id: id, user: req.user._id });
+        if (!chat) {
+            return res.status(404).json({ success: false, error: "Chat not found" });
+        }
+        res.json({ success: true, data: chat });
+    } catch (error) {
+        console.error("Error fetching chat:", error);
+        res.status(500).json({ success: false, error: "Failed to fetch chat", details: error.message });
     }
 };
 

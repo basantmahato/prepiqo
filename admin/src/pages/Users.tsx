@@ -8,16 +8,18 @@ import styles from './Page.module.css';
 
 export const Users = () => {
   const [users, setUsers] = useState<any[]>([]);
+  const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Edit Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ name: '', email: '', role: '' });
+  const [editForm, setEditForm] = useState({ name: '', email: '', role: '', planId: '' });
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     fetchUsers();
+    fetchPlans();
   }, []);
 
   const fetchUsers = async () => {
@@ -32,9 +34,23 @@ export const Users = () => {
     }
   };
 
+  const fetchPlans = async () => {
+    try {
+      const res = await api.get('/admin/plans');
+      setPlans(res.data.data);
+    } catch (error) {
+      console.error('Failed to fetch plans', error);
+    }
+  };
+
   const handleEditClick = (user: any) => {
     setSelectedUser(user);
-    setEditForm({ name: user.name, email: user.email, role: user.role });
+    setEditForm({ 
+      name: user.name, 
+      email: user.email, 
+      role: user.role,
+      planId: user.currentSubscription?.plan?._id || 'free'
+    });
     setIsEditModalOpen(true);
   };
 
@@ -53,8 +69,9 @@ export const Users = () => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const res = await api.put(`/admin/users/${selectedUser._id}`, editForm);
-      setUsers(users.map((u) => (u._id === selectedUser._id ? res.data.data : u)));
+      await api.put(`/admin/users/${selectedUser._id}`, editForm);
+      // Fetch users again to get populated subscription data correctly
+      await fetchUsers();
       setIsEditModalOpen(false);
     } catch (error) {
       console.error('Failed to update user', error);
@@ -137,6 +154,23 @@ export const Users = () => {
             >
               <option value="user">User</option>
               <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label className={styles.label} htmlFor="plan-select">Plan</label>
+            <select 
+              id="plan-select"
+              name="plan"
+              title="Plan"
+              value={editForm.planId}
+              onChange={(e) => setEditForm({ ...editForm, planId: e.target.value })}
+              className={styles.select}
+            >
+              <option value="free">Free</option>
+              {plans.map(plan => (
+                <option key={plan._id} value={plan._id}>{plan.name}</option>
+              ))}
             </select>
           </div>
 
