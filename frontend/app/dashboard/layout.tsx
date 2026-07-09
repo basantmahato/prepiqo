@@ -90,7 +90,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 <div className="w-6 h-6 bg-brand rounded-sm flex items-center justify-center shrink-0">
                   <div className="w-3 h-3 bg-white rounded-sm"></div>
                 </div>
-                MCQBot
+                Prepiqo
               </Link>
               <button 
                 onClick={() => toggleSidebar(false)}

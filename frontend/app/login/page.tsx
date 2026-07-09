@@ -119,6 +119,12 @@ export default function Login() {
         <div className="text-center mt-8 text-sm text-text-secondary">
           Don't have an account? <Link href="/register" className="text-brand font-semibold hover:underline">Sign up</Link>
         </div>
+        
+        <div className="text-center mt-4">
+          <Link href="/dashboard" className="text-sm text-text-muted hover:text-text-primary transition-colors underline underline-offset-4">
+            Skip for now
+          </Link>
+        </div>
       </div>
     </div>
   );

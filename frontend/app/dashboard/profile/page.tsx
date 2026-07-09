@@ -64,7 +64,7 @@ export default function ProfilePage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'dummy_key_id',
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'MCQBot',
+        name: 'Prepiqo',
         description: `Upgrade to ${selectedPlan.name} Plan`,
         order_id: orderData.orderId,
         handler: async function (response: any) {

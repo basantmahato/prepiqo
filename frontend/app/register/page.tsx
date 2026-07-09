@@ -182,6 +182,12 @@ export default function Register() {
         <div className="text-center mt-8 text-sm text-text-secondary">
           Already have an account? <Link href="/login" className="text-brand font-semibold hover:underline">Log in</Link>
         </div>
+        
+        <div className="text-center mt-4">
+          <Link href="/dashboard" className="text-sm text-text-muted hover:text-text-primary transition-colors underline underline-offset-4">
+            Skip for now
+          </Link>
+        </div>
       </div>
 
       {showOtpModal && (
