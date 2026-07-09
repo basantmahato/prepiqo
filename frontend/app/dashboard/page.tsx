@@ -451,11 +451,11 @@ export default function Dashboard() {
                 
                 {/* Feature Menu Popup */}
                 {isMenuOpen && (
-                  <div className="absolute bottom-12 left-0 w-56 bg-white border border-border-subtle rounded-xl shadow-xl p-2 z-10 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute bottom-12 left-0 w-56 bg-white border border-border-subtle rounded-2xl shadow-xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
                     <button
                       type="button"
                       onClick={() => { setMode('mcq'); setIsMenuOpen(false); }}
-                      className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3 transition-colors ${mode === 'mcq' ? 'bg-brand/10 text-brand' : 'hover:bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+                      className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors flex items-center gap-3 ${mode === 'mcq' ? 'bg-brand/10 text-brand' : 'text-text-primary hover:bg-gray-50'}`}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                       Generate MCQs
@@ -463,24 +463,23 @@ export default function Dashboard() {
                     <button
                       type="button"
                       onClick={() => { setMode('notes'); setIsMenuOpen(false); }}
-                      className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3 transition-colors ${mode === 'notes' ? 'bg-brand/10 text-brand' : 'hover:bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+                      className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors flex items-center gap-3 border-t border-border-subtle ${mode === 'notes' ? 'bg-brand/10 text-brand' : 'text-text-primary hover:bg-gray-50'}`}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                      Generate Notes
+                      Study Notes
                     </button>
                     <button
                       type="button"
                       onClick={() => { setMode('qa'); setIsMenuOpen(false); }}
-                      className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3 transition-colors ${mode === 'qa' ? 'bg-brand/10 text-brand' : 'hover:bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+                      className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors flex items-center gap-3 border-t border-border-subtle ${mode === 'qa' ? 'bg-brand/10 text-brand' : 'text-text-primary hover:bg-gray-50'}`}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                      Generate Q&A
+                      Q&A Flashcards
                     </button>
-                    <div className="h-px bg-border-subtle my-1"></div>
                     <button
                       type="button"
                       onClick={() => { setMode('chat'); setIsMenuOpen(false); }}
-                      className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3 transition-colors ${mode === 'chat' ? 'bg-brand/10 text-brand' : 'hover:bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+                      className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors flex items-center gap-3 border-t border-border-subtle ${mode === 'chat' ? 'bg-brand/10 text-brand' : 'text-text-primary hover:bg-gray-50'}`}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                       AI Assistant
@@ -490,7 +489,7 @@ export default function Dashboard() {
               </div>
 
               <textarea 
-                className="w-full px-2 py-3 bg-transparent border-none text-text-primary text-base resize-none focus:outline-none max-h-32 placeholder:text-text-muted min-h-[56px]"
+                className="w-full px-3 py-2 bg-transparent border-none text-text-primary text-base resize-none focus:outline-none max-h-32 placeholder:text-text-muted min-h-[40px] flex-1 self-center"
                 placeholder={
                   mode === 'mcq' ? "Topic for MCQs... (e.g. React Hooks)" : 
                   mode === 'notes' ? "Topic for study notes... (e.g. World War 2)" : 
@@ -510,21 +509,23 @@ export default function Dashboard() {
                     if (topic.trim()) handleGenerate(e as unknown as React.FormEvent);
                   }
                 }}
-                required
-              /><button 
-                type="submit"
-                disabled={!topic.trim() || loading}
-                className="w-10 h-10 shrink-0 mb-1 mr-1 rounded-xl bg-brand text-white flex items-center justify-center hover:bg-brand/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                title="Send Message"
-                aria-label="Send Message"
+              />
+
+              <button 
+                type="submit" 
+                title="Send message"
+                aria-label="Send message"
+                disabled={loading || !topic.trim()}
+                className="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center hover:bg-brand/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shrink-0 shadow-sm hover:shadow-md"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
               </button>
             </div>
           </form>
-          <div className="text-center mt-3 text-xs text-text-muted font-medium">
-            Prepiqo can make mistakes. Consider verifying the generated content.
-          </div>
+
         </div>
       </div>
     </main>

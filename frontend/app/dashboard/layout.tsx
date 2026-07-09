@@ -118,7 +118,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                   href={item.path}
                   onClick={(e) => handleNavClick(e, item.path)}
                   title={!isSidebarOpen ? item.name : undefined}
-                  className={`flex items-center ${!isSidebarOpen ? 'justify-center px-0' : 'px-3 gap-3'} py-3 rounded-lg transition-colors text-sm font-medium ${isActive ? 'bg-brand text-white shadow-sm' : 'text-text-secondary hover:bg-bg-primary hover:text-text-primary'}`}
+                  className={`w-full flex items-center ${!isSidebarOpen ? 'justify-center px-0' : 'px-3 gap-3'} py-3 rounded-lg transition-colors text-sm font-medium ${isActive ? 'bg-brand text-white shadow-sm' : 'text-text-secondary hover:bg-bg-primary hover:text-text-primary'}`}
                 >
                   <div className="shrink-0">{item.icon}</div>
                   {isSidebarOpen && <span className="truncate">{item.name}</span>}
@@ -136,9 +136,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         if (!isSidebarOpen) toggleSidebar(true);
                       }}
                       title={!isSidebarOpen ? 'Chat History' : undefined}
-                      className={`w-full flex items-center justify-between ${!isSidebarOpen ? 'justify-center px-0' : 'px-3'} py-3 rounded-lg transition-colors text-sm font-medium hover:bg-bg-primary hover:text-text-primary ${isHistoryOpen ? 'text-brand' : 'text-text-secondary'}`}
+                      className={`w-full flex items-center ${!isSidebarOpen ? 'justify-center px-0' : 'justify-between px-3'} py-3 rounded-lg transition-colors text-sm font-medium hover:bg-bg-primary hover:text-text-primary ${isHistoryOpen ? 'text-brand' : 'text-text-secondary'}`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className={`flex items-center ${!isSidebarOpen ? 'justify-center' : 'gap-3'}`}>
                         <div className="shrink-0">
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
                         </div>
