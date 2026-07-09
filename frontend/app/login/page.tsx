@@ -53,11 +53,11 @@ export default function Login() {
       
       <div className="w-full max-w-[420px] bg-white border border-border-subtle rounded-2xl p-8 sm:p-10 shadow-xl relative z-10">
         <div className="flex justify-center mb-8">
-          <Link href="/" className="flex items-center gap-3 font-bold text-xl text-text-primary">
-            <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center text-white shadow-sm">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <Link href="/" className="flex items-center justify-center gap-3 font-bold text-2xl text-text-primary tracking-tight">
+            <div className="w-8 h-8 bg-brand rounded-md flex items-center justify-center text-white shadow-md">
+              <div className="w-4 h-4 bg-white rounded-sm"></div>
             </div>
-            MCQBot
+            Prepiqo
           </Link>
         </div>
         
@@ -72,7 +72,7 @@ export default function Login() {
             <input 
               type="email" 
               id="email" 
-              className="w-full px-4 py-3 bg-bg-primary border border-border-strong rounded-lg text-text-primary text-sm transition-all focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" 
+              className="w-full px-4 py-3 bg-bg-primary border border-border-strong rounded-xl text-text-primary text-sm transition-all focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-sm" 
               placeholder="you@example.com" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -88,7 +88,7 @@ export default function Login() {
             <input 
               type="password" 
               id="password" 
-              className="w-full px-4 py-3 bg-bg-primary border border-border-strong rounded-lg text-text-primary text-sm transition-all focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" 
+              className="w-full px-4 py-3 bg-bg-primary border border-border-strong rounded-xl text-text-primary text-sm transition-all focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-sm" 
               placeholder="••••••••" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -96,7 +96,7 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" className="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-semibold rounded-lg bg-brand text-white border border-transparent hover:bg-brand/90 transition-all shadow-sm disabled:opacity-50" disabled={isLoading}>
+          <button type="submit" className="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-bold rounded-xl bg-brand text-white hover:bg-brand/90 transition-all shadow-md hover:shadow-lg disabled:opacity-50" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Log in'}
           </button>
         </form>

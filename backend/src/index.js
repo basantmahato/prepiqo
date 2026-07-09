@@ -13,7 +13,10 @@ const app = express()
 connectDB()
 app.use(json())
 
-app.use(cors());
+app.use(cors({
+    origin: ['https://prepiqo.com', 'https://www.prepiqo.com', 'http://localhost:3000', 'http://localhost:3001'],
+    credentials: true
+}));
 
 // Define rate limiter
 const limiter = rateLimit({
