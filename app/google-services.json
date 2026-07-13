@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "583941937550",
+    "project_id": "prepiqo",
+    "storage_bucket": "prepiqo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:583941937550:android:98098f17a33b2fcfafecdf",
+        "android_client_info": {
+          "package_name": "com.prepiqo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR3PAH4umdClAhPniMpvG5jc8xMqDJuUQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

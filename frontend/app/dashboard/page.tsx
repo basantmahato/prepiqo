@@ -29,6 +29,7 @@ interface Message {
   type?: GenerationMode;
   mcqs?: MCQ[];
   qa?: QA[];
+  chatId?: string;
 }
 
 export default function Dashboard() {
@@ -45,6 +46,11 @@ export default function Dashboard() {
   
   const [loading, setLoading] = useState(false);
   const [latestAssistantMessageId, setLatestAssistantMessageId] = useState<string | null>(null);
+  const [sharedMap, setSharedMap] = useState<Record<string, boolean>>({});
+  const [sharingId, setSharingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -55,6 +61,8 @@ export default function Dashboard() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -72,11 +80,13 @@ export default function Dashboard() {
             content: 'Hello! I am Prepiqo. What would you like to generate today? You can choose MCQs, Study Notes, or Q&A using the + button next to the input.',
           }
         ]);
+        setLatestAssistantMessageId('welcome');
         return;
       }
       
       try {
         setLoading(true);
+        setLatestAssistantMessageId(null);
         const response = await api.get(`/data/chatshistory/${chatId}`);
         const chatData = response.data.data;
         
@@ -89,6 +99,7 @@ export default function Dashboard() {
             };
             
             if (m.role === 'assistant') {
+              msg.chatId = chatData._id;
               try {
                 // Try parsing JSON if it was MCQs or QA
                 const parsed = JSON.parse(m.content);
@@ -116,6 +127,11 @@ export default function Dashboard() {
           });
           
           setMessages(parsedMessages);
+          const firstAssistantMessage = parsedMessages.find((msg: Message) => msg.role === 'assistant');
+          setLatestAssistantMessageId(firstAssistantMessage?.id || null);
+          if (chatData._id) {
+            setSharedMap(prev => ({ ...prev, [chatData._id]: !!chatData.isShared }));
+          }
         }
       } catch (error) {
         console.error('Failed to load chat:', error);
@@ -142,6 +158,16 @@ export default function Dashboard() {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToTop = () => {
+    chatScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleChatScroll = () => {
+    if (chatScrollRef.current) {
+      setShowScrollTop(chatScrollRef.current.scrollTop > 300);
+    }
   };
 
   useEffect(() => {
@@ -202,7 +228,8 @@ export default function Dashboard() {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
           content: '',
-          type: currentMode
+          type: currentMode,
+          chatId: response.data.chatId || undefined
         };
 
         if (currentMode === 'mcq') {
@@ -267,7 +294,7 @@ export default function Dashboard() {
     
     const opt = {
       margin:       15,
-      filename:     `mcqbot_generation_${msgId}.pdf`,
+      filename:     `prepiqo_generation_${msgId}.pdf`,
       image:        { type: 'jpeg' as const, quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true },
       jsPDF:        { unit: 'mm' as const, format: 'a4', orientation: 'portrait' as const },
@@ -281,6 +308,69 @@ export default function Dashboard() {
     element.removeChild(linkDiv);
   };
 
+  const handleToggleShare = async (cid: string) => {
+    try {
+      setSharingId(cid);
+      const response = await api.post(`/data/chatshistory/${cid}/share`);
+      if (response.data.success) {
+        setSharedMap(prev => ({ ...prev, [cid]: response.data.isShared }));
+        // When sharing is turned on, copy the public link straight to the clipboard
+        if (response.data.isShared) {
+          copyShareLink(cid);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to toggle sharing', err);
+    } finally {
+      setSharingId(null);
+    }
+  };
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  const copyShareLink = (cid: string) => {
+    if (typeof window === 'undefined') return;
+    const link = `${window.location.origin}/share/${cid}`;
+    navigator.clipboard.writeText(link);
+    setCopiedId(cid);
+    setTimeout(() => setCopiedId(null), 2000);
+    showToast('Link copied to clipboard!');
+  };
+
+  const buildPlainText = (msg: Message): string => {
+    if (msg.type === 'mcq' && msg.mcqs) {
+      return msg.mcqs
+        .map((q, i) =>
+          `${i + 1}. ${q.question}\n` +
+          q.options.map(opt => `   - ${opt}`).join('\n') +
+          `\n   Answer: ${q.answer}` +
+          (q.explanation ? `\n   Explanation: ${q.explanation}` : '')
+        )
+        .join('\n\n');
+    }
+    if (msg.type === 'qa' && msg.qa) {
+      return msg.qa
+        .map((q, i) => `Q${i + 1}. ${q.question}\nA. ${q.answer}`)
+        .join('\n\n');
+    }
+    // notes / chat are markdown strings
+    return msg.content;
+  };
+
+  const handleCopyContent = async (msg: Message) => {
+    if (typeof window === 'undefined') return;
+    try {
+      await navigator.clipboard.writeText(buildPlainText(msg));
+      setCopiedMsgId(msg.id);
+      setTimeout(() => setCopiedMsgId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy content', err);
+    }
+  };
+
   const ModeIcon = ({ m, className }: { m: GenerationMode, className?: string }) => {
     if (m === 'mcq') return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>;
     if (m === 'notes') return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
@@ -292,36 +382,94 @@ export default function Dashboard() {
 
   return (
     <main className="flex flex-col h-full bg-bg-secondary relative">
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-text-primary text-bg-primary px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          {toast}
+        </div>
+      )}
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          title="Scroll to top"
+          className="absolute top-6 right-6 z-40 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-border-strong text-text-secondary hover:text-brand hover:border-brand shadow-md transition-colors animate-in fade-in slide-in-from-top-2 duration-300"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+          </svg>
+        </button>
+      )}
+
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+      <div ref={chatScrollRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
         <div className="max-w-4xl mx-auto space-y-8">
           {messages.map((msg) => (
             <div key={msg.id} id={`msg-container-${msg.id}`} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               
               {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center shrink-0 mt-1">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                 </div>
               )}
               
-              <div className={`max-w-[95%] md:max-w-[85%] ${msg.role === 'user' ? 'bg-text-primary text-bg-primary px-5 py-3 rounded-2xl rounded-tr-sm shadow-sm' : 'w-full'}`}>
+              <div className={`max-w-[95%] md:max-w-[85%] ${msg.role === 'user' ? 'bg-text-primary text-bg-primary px-5 py-3 rounded-2xl rounded-tr-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)]' : 'w-full'}`}>
                 
                 {msg.role === 'assistant' ? (
-                  <div className="bg-white rounded-xl border border-border-subtle shadow-sm p-6 mb-2 relative group">
-                    {/* Header with Download Button for non-welcome messages */}
+                  <div className="bg-white rounded-xl border border-border-subtle shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6 mb-2 group">
+                    {/* Action toolbar at the top of the response */}
                     {msg.id !== 'welcome' && msg.type && (
-                       <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button 
+                       <div data-html2canvas-ignore="true" className="mb-4 pb-3 border-b border-border-subtle flex items-center justify-end gap-2">
+                         {msg.chatId && (
+                           <button
+                              onClick={() => handleToggleShare(msg.chatId!)}
+                              disabled={sharingId === msg.chatId}
+                              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-colors text-xs font-semibold disabled:opacity-60 ${sharedMap[msg.chatId] ? 'bg-brand/10 border-brand/20 text-brand' : 'bg-bg-secondary hover:bg-border-subtle border-border-strong text-text-secondary hover:text-text-primary'}`}
+                              title={sharedMap[msg.chatId] ? 'Stop sharing' : 'Share with students'}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="18" cy="5" r="3"></circle>
+                                <circle cx="6" cy="12" r="3"></circle>
+                                <circle cx="18" cy="19" r="3"></circle>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                              </svg>
+                              {sharingId === msg.chatId ? '...' : (sharedMap[msg.chatId] ? 'Shared' : 'Share')}
+                            </button>
+                         )}
+                         <button
+                            onClick={() => handleCopyContent(msg)}
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-colors text-xs font-semibold ${copiedMsgId === msg.id ? 'bg-brand/10 border-brand/20 text-brand' : 'bg-bg-secondary hover:bg-border-subtle border-border-strong text-text-secondary hover:text-text-primary'}`}
+                            title={copiedMsgId === msg.id ? 'Copied!' : 'Copy to clipboard'}
+                          >
+                            {copiedMsgId === msg.id ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            ) : (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                              </svg>
+                            )}
+                            {copiedMsgId === msg.id ? 'Copied' : 'Copy'}
+                          </button>
+                         <button
                             onClick={() => handleDownloadPdf(msg.id)}
-                            data-html2canvas-ignore="true"
-                            className="flex items-center justify-center p-2 rounded-lg bg-bg-secondary hover:bg-border-subtle border border-border-strong text-text-secondary hover:text-text-primary transition-colors shadow-sm"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-bg-secondary hover:bg-border-subtle border border-border-strong text-text-secondary hover:text-text-primary transition-colors text-xs font-semibold"
                             title="Download as PDF"
                           >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                               <polyline points="7 10 12 15 17 10"></polyline>
                               <line x1="12" y1="15" x2="12" y2="3"></line>
                             </svg>
+                            PDF
                           </button>
                        </div>
                     )}
@@ -349,7 +497,7 @@ export default function Dashboard() {
                         <div className="space-y-4 mt-4">
                           <p className="text-text-primary mb-4 leading-relaxed font-medium">{msg.content}</p>
                           {msg.qa.map((qaItem, index) => (
-                            <div key={index} className="bg-white border border-border-subtle rounded-xl p-5 shadow-sm pdf-avoid-break">
+                            <div key={index} className="bg-white border border-border-subtle rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] pdf-avoid-break">
                               <h3 className="font-semibold text-lg mb-3 flex gap-3 text-text-primary">
                                 <span className="text-brand shrink-0">Q.</span> 
                                 {qaItem.question}
@@ -363,6 +511,21 @@ export default function Dashboard() {
                         </div>
                       )}
                     </div>
+
+                    {msg.chatId && sharedMap[msg.chatId] && (
+                      <div data-html2canvas-ignore="true" className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 text-green-800 text-sm">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                          <span>Anyone with this link can view this content</span>
+                        </div>
+                        <button
+                          onClick={() => copyShareLink(msg.chatId!)}
+                          className="shrink-0 text-xs font-semibold bg-white border border-green-200 text-green-700 px-3 py-1.5 rounded-md hover:bg-green-100 transition-colors"
+                        >
+                          {copiedId === msg.chatId ? 'Copied!' : 'Copy Link'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <p className="leading-relaxed">{msg.content}</p>
@@ -371,7 +534,7 @@ export default function Dashboard() {
               </div>
 
               {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-border-strong text-text-primary flex items-center justify-center shrink-0 mt-1 font-bold text-xs shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-border-strong text-text-primary flex items-center justify-center shrink-0 mt-1 font-bold text-xs">
                   U
                 </div>
               )}
@@ -381,10 +544,10 @@ export default function Dashboard() {
 
           {loading && (
             <div className="flex gap-4 justify-start animate-in fade-in duration-300">
-               <div className="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center shrink-0 mt-1 shadow-sm">
+               <div className="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center shrink-0 mt-1">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                 </div>
-              <div className="bg-white border border-border-subtle px-5 py-4 rounded-2xl rounded-tl-sm flex items-center gap-2 shadow-sm">
+              <div className="bg-white border border-border-subtle px-5 py-4 rounded-2xl rounded-tl-sm flex items-center gap-2 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                 <div className="w-2 h-2 rounded-full bg-text-muted animate-bounce [animation-delay:-0ms]"></div>
                 <div className="w-2 h-2 rounded-full bg-text-muted animate-bounce [animation-delay:150ms]"></div>
                 <div className="w-2 h-2 rounded-full bg-text-muted animate-bounce [animation-delay:300ms]"></div>
@@ -401,7 +564,7 @@ export default function Dashboard() {
       {/* Input Area */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-bg-secondary via-bg-secondary to-transparent pt-12 pb-6 px-4 md:px-8">
         <div className="max-w-4xl mx-auto">
-          <form onSubmit={handleGenerate} className="bg-white border border-border-strong rounded-2xl shadow-xl p-2 transition-all">
+          <form onSubmit={handleGenerate} className="bg-white border border-border-subtle rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-2 transition-all">
             
             {/* Configuration Row (Only show if MCQ or QA requires config) */}
             {mode !== 'notes' && mode !== 'chat' && (

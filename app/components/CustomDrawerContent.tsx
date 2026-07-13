@@ -98,7 +98,7 @@ export default function CustomDrawerContent(props: any) {
             <View className="w-8 h-8 bg-[#5244E2] rounded flex justify-center items-center">
               <View className="w-3.5 h-3.5 bg-white rounded-sm" />
             </View>
-            <Text className="text-xl font-bold text-[#0A2540]">MCQBot</Text>
+            <Text className="text-xl font-bold text-[#0A2540]">Prepiqo</Text>
           </View>
           <TouchableOpacity onPress={() => props.navigation.closeDrawer()}>
             <Ionicons name="arrow-back" size={24} color="#6b7280" />

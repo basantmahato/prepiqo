@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 
+import Constants from 'expo-constants';
+
 WebBrowser.maybeCompleteAuthSession();
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,10 +20,12 @@ export default function RegisterScreen() {
   
   const { register, isLoading, error: storeError, clearError, setAuth, googleLogin } = useAuthStore();
   
+  const isExpoGo = Constants.appOwnership === 'expo';
+
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: 'YOUR_WEB_CLIENT_ID_HERE',
-    androidClientId: 'YOUR_ANDROID_CLIENT_ID_HERE',
-    iosClientId: 'YOUR_IOS_CLIENT_ID_HERE',
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    androidClientId: isExpoGo ? process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID : (process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || 'dummy-android-client-id'),
+    iosClientId: isExpoGo ? process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID : (process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || 'dummy-ios-client-id'),
   });
 
   React.useEffect(() => {
@@ -123,7 +127,7 @@ export default function RegisterScreen() {
             <View className="w-10 h-10 bg-[#5244E2] rounded-xl justify-center items-center shadow-sm">
               <Ionicons name="layers" size={24} color="white" />
             </View>
-            <Text className="text-2xl font-bold text-gray-900 tracking-tight">MCQBot</Text>
+            <Text className="text-2xl font-bold text-gray-900 tracking-tight">Prepiqo</Text>
           </View>
           
 

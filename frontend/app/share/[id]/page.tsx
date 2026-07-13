@@ -97,7 +97,7 @@ export default function SharedChatPage() {
             onClick={() => router.push('/')}
             className="px-6 py-2.5 bg-brand text-white font-medium rounded-lg hover:bg-brand/90 transition-colors w-full"
           >
-            Go to MCQBot
+            Go to Prepiqo
           </button>
         </div>
       </div>
@@ -111,10 +111,10 @@ export default function SharedChatPage() {
         <div className="max-w-4xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-brand text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-sm">
-              M
+              P
             </div>
             <div>
-              <h1 className="font-bold text-text-primary text-lg">MCQBot</h1>
+              <h1 className="font-bold text-text-primary text-lg">Prepiqo</h1>
               <p className="text-xs text-text-secondary font-medium">Shared Learning Content</p>
             </div>
           </div>

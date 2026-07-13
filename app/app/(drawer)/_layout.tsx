@@ -25,7 +25,12 @@ export default function DrawerLayout() {
           drawerInactiveTintColor: '#4b5563',
           drawerLabelStyle: { fontSize: 14, fontWeight: '500' },
           drawerItemStyle: { borderRadius: 8, paddingHorizontal: 4 },
-          headerStyle: { backgroundColor: '#F9FAFB' },
+          headerStyle: { 
+            backgroundColor: '#F9FAFB',
+            borderBottomWidth: 1,
+            borderBottomColor: '#E5E7EB',
+          },
+          headerShadowVisible: false,
           title: '',
           headerRight: () => (
             <View className="mr-4 w-8 h-8 rounded-full bg-[#E0E7FF] justify-center items-center">

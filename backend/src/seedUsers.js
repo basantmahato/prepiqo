@@ -7,11 +7,11 @@ dotenv.config();
 
 const seedUsers = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/mcqbot');
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/prepiqo');
     console.log('MongoDB connected for seeding...');
 
     // Clear existing test users if they exist
-    await User.deleteMany({ email: { $in: ['admin@mcqbot.com', 'user@mcqbot.com'] } });
+    await User.deleteMany({ email: { $in: ['admin@prepiqo.com', 'user@prepiqo.com'] } });
 
     // Hash passwords
     const salt = await bcrypt.genSalt(10);
@@ -20,7 +20,7 @@ const seedUsers = async () => {
     // Create Admin
     const admin = await User.create({
       name: 'Admin User',
-      email: 'admin@mcqbot.com',
+      email: 'admin@prepiqo.com',
       password: hashedPassword,
       role: 'admin',
       isVerified: true
@@ -30,7 +30,7 @@ const seedUsers = async () => {
     // Create Normal User
     const user = await User.create({
       name: 'Standard User',
-      email: 'user@mcqbot.com',
+      email: 'user@prepiqo.com',
       password: hashedPassword,
       role: 'user',
       isVerified: true

@@ -15,7 +15,7 @@ export default function InteractiveMCQ({ mcq, index }: { mcq: MCQ, index: number
   const hasAnswered = selectedOption !== null;
 
   return (
-    <div className="bg-white border border-border-subtle rounded-xl overflow-hidden shadow-sm pdf-avoid-break">
+    <div className="bg-white border border-border-subtle rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] pdf-avoid-break">
       <div className="p-5 md:p-6">
         <h3 className="font-semibold text-lg mb-4 flex gap-3 text-text-primary leading-snug">
           <span className="text-text-secondary shrink-0">{index + 1}.</span> 

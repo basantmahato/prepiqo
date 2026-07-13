@@ -1,7 +1,13 @@
 import { Platform } from 'react-native';
-import * as RNIap from 'react-native-iap';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Assuming this is used for auth token
+
+let RNIap;
+try {
+  RNIap = require('react-native-iap');
+} catch (err) {
+  console.log('react-native-iap is not supported in this environment (e.g. Expo Go):', err.message);
+}
 
 const itemSKUs = Platform.select({
   ios: [
@@ -15,6 +21,10 @@ const itemSKUs = Platform.select({
 });
 
 export const initIAP = async () => {
+  if (!RNIap) {
+    console.log('IAP is not available in this environment');
+    return false;
+  }
   try {
     const init = await RNIap.initConnection();
     if (init) {
@@ -30,6 +40,10 @@ export const initIAP = async () => {
 };
 
 export const getProducts = async () => {
+  if (!RNIap) {
+    console.log('IAP is not available in this environment');
+    return [];
+  }
   try {
     const products = await RNIap.getProducts({ skus: itemSKUs });
     return products;
@@ -40,6 +54,10 @@ export const getProducts = async () => {
 };
 
 export const requestPurchase = async (sku, planId) => {
+  if (!RNIap) {
+    console.log('IAP is not available in this environment');
+    throw new Error('In-app purchases are not supported in Expo Go. Please use a development build.');
+  }
   try {
     const purchase = await RNIap.requestPurchase({ sku });
     

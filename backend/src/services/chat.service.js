@@ -8,7 +8,7 @@ const llm = new ChatGoogleGenerativeAI({
 
 export const generateChatService = async (promptText) => {
     const promptTemplate = new PromptTemplate({
-        template: `You are an expert AI Assistant named MCQBot. Respond helpfully, accurately, and concisely to the following user prompt.
+        template: `You are an expert AI Assistant named Prepiqo. Respond helpfully, accurately, and concisely to the following user prompt.
 
 User Prompt: {promptText}
 

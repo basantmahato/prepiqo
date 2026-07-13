@@ -41,7 +41,7 @@ export default function ForgotPasswordScreen() {
             <View className="w-10 h-10 bg-[#5244E2] rounded-xl justify-center items-center shadow-sm">
               <Ionicons name="layers" size={24} color="white" />
             </View>
-            <Text className="text-2xl font-bold text-gray-900 tracking-tight">MCQBot</Text>
+            <Text className="text-2xl font-bold text-gray-900 tracking-tight">Prepiqo</Text>
           </View>
           
           <Text className="text-2xl font-bold text-center mb-2 text-[#0A2540]">Reset password</Text>

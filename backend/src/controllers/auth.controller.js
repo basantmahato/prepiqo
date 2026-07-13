@@ -118,7 +118,11 @@ export const loginUser = async (req, res) => {
        });
     }
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (!user.password) {
+      return res.status(400).json({ message: 'This account was created using Google Sign-In. Please log in with Google.' });
+    }
+
+    if (await bcrypt.compare(password, user.password)) {
       res.json({
         _id: user.id,
         name: user.name,
@@ -146,7 +150,10 @@ export const googleLogin = async (req, res) => {
     // Verify the token
     const ticket = await client.verifyIdToken({
       idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: [
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_ANDROID_CLIENT_ID
+      ].filter(Boolean),
     });
 
     const payload = ticket.getPayload();

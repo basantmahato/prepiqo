@@ -238,7 +238,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* Notification Preferences */}
-        <View className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-12">
+        <View className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
           <View className="p-5 bg-gray-50 border-b border-gray-200">
             <View className="flex-row items-center gap-2">
               <Ionicons name="notifications-outline" size={20} color="#6B7280" />
@@ -263,30 +263,30 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-      </ScrollView>
-
-      {/* App Feedback */}
-      <View className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6 mx-4">
-        <View className="p-5 bg-gray-50 border-b border-gray-200">
-          <View className="flex-row items-center gap-2">
-            <Ionicons name="star-outline" size={20} color="#6B7280" />
-            <Text className="text-lg font-semibold text-[#0A2540]">Feedback</Text>
-          </View>
-          <Text className="text-sm text-[#6B7280] mt-1">Help us improve by leaving a review.</Text>
-        </View>
-        <View className="p-5">
-          <TouchableOpacity 
-            onPress={() => manualRequestReview()}
-            className="flex-row items-center justify-between py-2"
-          >
-            <View>
-              <Text className="font-medium text-[#0A2540]">Rate the App</Text>
-              <Text className="text-sm text-[#6B7280]">Leave a review on the app store</Text>
+        {/* App Feedback */}
+        <View className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-12">
+          <View className="p-5 bg-gray-50 border-b border-gray-200">
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="star-outline" size={20} color="#6B7280" />
+              <Text className="text-lg font-semibold text-[#0A2540]">Feedback</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
+            <Text className="text-sm text-[#6B7280] mt-1">Help us improve by leaving a review.</Text>
+          </View>
+          <View className="p-5">
+            <TouchableOpacity 
+              onPress={() => manualRequestReview()}
+              className="flex-row items-center justify-between py-2"
+            >
+              <View>
+                <Text className="font-medium text-[#0A2540]">Rate the App</Text>
+                <Text className="text-sm text-[#6B7280]">Leave a review on the app store</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+
+      </ScrollView>
 
       {/* OTP Verification Modal */}
       <Modal

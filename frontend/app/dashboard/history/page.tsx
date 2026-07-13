@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../../store/authStore';
 import api from '../../../lib/axios';
@@ -46,6 +46,7 @@ export default function HistoryPage() {
   const [parsedData, setParsedData] = useState<any>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const detailsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) {
@@ -70,6 +71,9 @@ export default function HistoryPage() {
 
   const handleSelectChat = (chat: ChatHistory) => {
     setSelectedChat(chat);
+    requestAnimationFrame(() => {
+      detailsRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+    });
     
     let type: 'mcq' | 'notes' | 'qa' | 'chat' = 'mcq';
     if (chat.title.startsWith('Notes on')) type = 'notes';
@@ -209,7 +213,7 @@ export default function HistoryPage() {
           </div>
 
           {/* Details View */}
-          <div className="w-full md:w-2/3 bg-white rounded-xl border border-border-subtle p-6 overflow-y-auto h-[600px]">
+          <div ref={detailsRef} className="w-full md:w-2/3 bg-white rounded-xl border border-border-subtle p-6 overflow-y-auto h-[600px]">
             {selectedChat ? (
               <div id="pdf-content" className="bg-white p-2">
                 <div className="mb-6 pb-6 border-b border-border-subtle">
@@ -274,7 +278,7 @@ export default function HistoryPage() {
                 ) : chatType === 'qa' && Array.isArray(parsedData) && parsedData.length > 0 ? (
                   <div className="space-y-4 pb-8">
                     {(parsedData as QA[]).map((qaItem, index) => (
-                      <div key={index} className="bg-white border border-border-subtle rounded-xl p-5 shadow-sm pdf-avoid-break">
+                      <div key={index} className="bg-white border border-border-subtle rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] pdf-avoid-break">
                         <h3 className="font-semibold text-lg mb-3 flex gap-3 text-text-primary">
                           <span className="text-brand shrink-0">Q.</span> 
                           {qaItem.question}
